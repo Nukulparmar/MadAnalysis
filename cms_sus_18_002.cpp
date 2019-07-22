@@ -214,9 +214,9 @@ bool cms_sus_18_002::Execute(SampleFormat& sample, const EventFormat& event)
       for (MAuint32 i=0;i<event.rec()->photons().size();i++)
 	{
 	  const RecPhotonFormat *photon = &(event.rec()->photons()[i]);
-	  if((photon->momentum().Pt()>100)&&(fabs(photon->momentum().Eta())<2.4))
+	  if(photon->momentum().Pt()>100 and fabs(photon->momentum().Eta())<2.4)
 	    {
-	      if((fabs(photon->momentum().Eta())<1.4442)||(fabs(photon->momentum().Eta())>1.556))
+	      if(fabs(photon->momentum().Eta())<1.4442 or fabs(photon->momentum().Eta())>1.556)
 		{		  
 		  recphoton.push_back(photon);
 	      	  double delrmax = 0.3;
@@ -234,14 +234,13 @@ bool cms_sus_18_002::Execute(SampleFormat& sample, const EventFormat& event)
 	{
 	  const RecLeptonFormat *elec = &(event.rec()->electrons()[i]);
 	  
-	  if((elec->momentum().Pt()>10)&&(fabs(elec->momentum().Eta())<2.5)) 
-	    {
-	      rec_electrons.push_back(elec);
-	      double isocone = Mini_Iso_DeltaR(elec);
-	      double all = PHYSICS->Isol->eflow->sumIsolation(elec,event.rec(),isocone,0.,IsolationEFlow::ALL_COMPONENTS);
-	      double isolation = all/elec->momentum().Pt();
-	      if(isolation < 0.1) { isoelec.push_back(elec);}    
-	    }
+	  if(!(elec->momentum().Pt()>10 and fabs(elec->momentum().Eta())<2.5)) continue; 
+	  rec_electrons.push_back(elec);
+	  double isocone = Mini_Iso_DeltaR(elec);
+	  double all = PHYSICS->Isol->eflow->sumIsolation(elec,event.rec(),isocone,0.,IsolationEFlow::ALL_COMPONENTS);
+	  double isolation = all/elec->momentum().Pt();
+	  if(isolation < 0.1) { isoelec.push_back(elec);}    
+	
 	}
 	
       // Looking through the reconstructed muon collection
@@ -249,14 +248,13 @@ bool cms_sus_18_002::Execute(SampleFormat& sample, const EventFormat& event)
 	{
 	  const RecLeptonFormat *mu = &(event.rec()->muons()[i]);
 	  
-	  if((mu->momentum().Pt()>10)&&(fabs(mu->momentum().Eta())<2.4))
-	    {
-	      rec_muons.push_back(mu);
-	      double isocone = Mini_Iso_DeltaR(mu);
-	      double all = PHYSICS->Isol->eflow->sumIsolation(mu,event.rec(),isocone,0.0,IsolationEFlow::ALL_COMPONENTS);
-	      double isolation = (all)/mu->momentum().Pt();
-	      if(isolation < 0.2) { isomuon.push_back(mu);}
-	    }
+	  if(!(mu->momentum().Pt()>10 and fabs(mu->momentum().Eta())<2.4)) continue;
+	  rec_muons.push_back(mu);
+	  double isocone = Mini_Iso_DeltaR(mu);
+	  double all = PHYSICS->Isol->eflow->sumIsolation(mu,event.rec(),isocone,0.0,IsolationEFlow::ALL_COMPONENTS);
+	  double isolation = (all)/mu->momentum().Pt();
+	  if(isolation < 0.2) { isomuon.push_back(mu);}
+	  
 	}
 	
       // Iso track info
@@ -273,11 +271,11 @@ bool cms_sus_18_002::Execute(SampleFormat& sample, const EventFormat& event)
 	  bool ismuon       = ( particleId== 13 or particleId == -13) ;                                               
 	  double IsoCone    = 0.3 ;
 	  double ChargedSum = PHYSICS->Isol->eflow->sumIsolation(isotrack,event.rec() , IsoCone ,0.,IsolationEFlow::TRACK_COMPONENT) / pt;
-	  if((iselectron)&&(pt > 5)&&(mT < 100)&&(ChargedSum < 0.2))           
+	  if      ( iselectron and pt > 5   and mT < 100 and ChargedSum < 0.2 )       // selecting isolated electrons tracks    
 	    { electronIsoTracks.push_back(isotrack); }
-	  if((ismuon)&&(pt > 5)&&(mT < 100)&&(ChargedSum < 0.2))
+	  if      ( ismuon     and pt > 5   and mT < 100 and ChargedSum < 0.2 )
 	    { muonIsoTracks.push_back(isotrack); }   
-	  if((!(ismuon or iselectron))&&(pt > 10)&&(mT < 100)&&(ChargedSum < 0.1))
+	  if      ( !(ismuon or iselectron) and  pt > 10 and mT < 100 and ChargedSum < 0.1)//earlier 0.1
 	    {isoTracks.push_back(isotrack); }                                                  
 
 	}
@@ -287,6 +285,8 @@ bool cms_sus_18_002::Execute(SampleFormat& sample, const EventFormat& event)
       MALorentzVector misspt = event.rec()->MET().momentum();
       double rec_met = misspt.Pt();
 
+      // initializing Jet variables
+      
       vector<const RecJetFormat*> rec_jets, isr_jets;
       double dr = 100.00;
       MAuint32 nbjets=0;
@@ -299,13 +299,13 @@ bool cms_sus_18_002::Execute(SampleFormat& sample, const EventFormat& event)
 	    {
 	      dr = DeltaR(isophoton[0]->momentum().Eta(),isophoton[0]->momentum().Phi(),jet->momentum().Eta(),jet->momentum().Phi());
 	    }
-	   if(jet->momentum().Pt()>30 and fabs(jet->momentum().Eta())<2.4 and dr>0.3)
+	   if((jet->momentum().Pt()>30)&&(fabs(jet->momentum().Eta())<2.4)&&(dr>0.3))
 	    { rec_ht+=jet->momentum().Pt();
 	      rec_jets.push_back(jet);
 	      if(jet->btag())
 		{ nbjets++;}
 	    }
-	  else if(jet->momentum().Pt()>30 and fabs(jet->momentum().Eta())<2.4 and dr<0.3)
+	  else if((jet->momentum().Pt()>30)&&(fabs(jet->momentum().Eta())<2.4)&&(dr<0.3))
 	    { 
 	      rec_ht+=isophoton[0]->momentum().Pt();
 	    }
@@ -359,7 +359,7 @@ bool cms_sus_18_002::Execute(SampleFormat& sample, const EventFormat& event)
 
 	  if(!Manager()->ApplyCut((rec_njets >= 2),"njets>=2")) return true;
 	  
-	  // 6) (photonpt > 190 and rec_ht>500) or (photonpt>100 and rec_ht>800)
+	  // 6) ST cut = (photonpt > 190 and rec_ht>500) or (photonpt>100 and rec_ht>800)
 
 	  if(!Manager()->ApplyCut(((gammapt > 190 && rec_ht > 500) || (gammapt > 100 && rec_ht > 800)),"STcut")) return true;
 
