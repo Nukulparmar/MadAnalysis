@@ -1,0 +1,341 @@
+\documentclass[a4paper, 10pt]{article}
+\usepackage{mathtools}
+\usepackage[a4paper, margin=.6in]{geometry}
+\usepackage[document]{ragged2e}
+\usepackage{hyperref}
+\hypersetup{colorlinks,
+            citecolor=black,  
+            filecolor=black,  
+            linkcolor=black,  
+            urlcolor=blue }  
+
+\usepackage{abstract}
+\renewcommand{\abstractnamefont}{\normalfont\bfseries}
+\usepackage[document]{ragged2e}
+\usepackage{graphicx}
+\usepackage{listings}
+\renewcommand{\vec}[1]{\mathbf{#1}}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+%\usepackage{titling}
+%\setlength{\droptitle}{-4\baselineskip}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{marvosym}
+\usepackage[printwatermark]{xwatermark}
+\usepackage{xcolor}
+\newwatermark[allpages,color=gray!30,angle=45,scale=3,xpos=0,ypos=0]{DRAFT}
+
+
+%\usepackage{fancyhdr} % Headers and footers
+%\pagestyle{fancy} % All pages have headers and footers
+%\fancyhead{} % Blank out the default header
+%\fancyfoot{} % Blank out the default footer
+%\DeclarePairedDelimiter\Floor\lfloor\rfloor
+%\DeclarePairedDelimiter\Ceil\lceil\rceil
+
+%\renewcommand{\maketitlehookd}{ \begin{Abstract}
+
+
+\begin{document}
+%\pretitle{\begin{center}\Huge}
+%\posttitle{\end{center}}
+\title{MadAnalysis5 validation for the recasting of CMS-SUS-18-002: Supersymmetry search with photon, jets, b-jets and missing transverse momentum}
+
+\author{Nukulsinh Parmar, Dr. Vinay Hegde, Dr. Seema Sharma \\ \normalsize Indian Institute of Science Education and Research (IISER), Pune, India \\
+\normalsize \textit{emails: nukulsinh.parmar@students.iiserpune.ac.in, vinay.hegde@students.iiserpune.ac.in, seema@iiserpune.ac.in }}
+
+
+\date{}
+
+\maketitle
+%\normalsize Indian Institute of Science Education and Research (IISER), Pune, India
+%\normalsize \textit{emails: nukulsinh.parmar@students.iiserpune.ac.in, %vinay.hegde@students.iiserpune.ac.in, seema@iiserpune.ac.in }
+
+\pagenumbering{arabic}
+
+\begin{abstract}
+
+\noindent
+   We present the \textsc{MadAnalysis5} implementation and validation of the CMS-SUS-18-002 analysis, which is a search for supersymmetry in events with photon, jets, b-jets and missing transverse momentum in proton-proton collisions at 13 TeV\cite{paper}. The data correspond to an integrated luminosity of $35.9 fb^{-1}$ which were recorded by the CMS detector in 2016 at the CERN LHC. The recast code can be found on \textsc{InSpire}.
+\end{abstract}
+
+\tableofcontents
+
+
+\section{Introduction}
+\paragraph{}
+The CMS-SUS-18-002 \cite{paper} is designed for the search for supersymmetry with photon, jets, b-jets and missing transverse momentum (MET). The results presented in CMS-SUS-18-002 are based on a dataset of proton-proton collisions recorded by CMS with a center-of-mass energy of 13 TeV and an integrated luminosity of $35.9 fb^{-1}$. The analysis distinguishes signal-like events by categorizing the data into various signal regions based on the number of jets, the number of b-tagged jets, and missing transverse momentum. 
+\\
+\paragraph{}
+The simplified models considered in the analysis are T5bbbbHg, T5bbbbZg, T5ttttZg and T6ttZg \cite{paper}. In the T5bbbbZg and T5ttttZg scenario, Fig. \ref{Figure 1:}, each gluino decays to a pair of b quarks (or top quarks in case of T5ttttZg model) and a neutralino $\tilde{\chi}_{1}^{0}$ which decays to either a standard model Z and a gravitino $\tilde{G}$ or a photon and $\tilde{G}$. The branching ratio of $\tilde{\chi}_{1}^{0} \to Z \tilde{G}$ and $\tilde{\chi}_{1}^{0} \to \gamma \tilde{G}$ is assumed to be 50\% each [1]. In T5bbbbHg model $\tilde{\chi}_{1}^{0} \to H(\text{or } \gamma) \tilde{G}$. In T6ttZg model, the top squark decays into a top quark and a neutralino. The neutralino then decays to a $\gamma / Z$ and a gravitino \cite{paper}.   
+\\
+\paragraph{}
+In the following, we have compared the predictions obtained with our \textsc{MadAnalysis 5} \cite{madanalysis1,madanalysis2,madanalysis3} reimplementation with the CMS results at every event selection and signal regions. The simplified model T5bbbbZg and T5ttttZg shown in fig 1 have been used as the benchmark signal scenario, and range of values of the masses of LSP and NLSP are considered.     
+
+\begin{figure}[h]
+\centering 
+\includegraphics[scale=0.65]{/home/nukul/Academics/madanalysis/figs/CMS-SUS-18-002_Figure_001.pdf}
+\caption{Figure 1: Feynman diagram of the simplified moedels - T5bbbbHg (top left), T5bbbbZg (top right), T5ttttZg (bottom left) and T6ttZg (bottom right) }
+\label{Figure 1:}
+\end{figure}
+
+\section{Analysis Description}
+\paragraph{}
+The CMS-SUS-18-002 analysis is designed for the search for supersymmetry with photon, jets, b-jets and missing transverse momentum. The analysis focuses on the hadronic decay of the top-antitop system and Z. 
+
+\subsection{Object definitions and preselection}
+These are the sequential selection applied to the events. 
+
+\begin{enumerate}
+\item \textbf{Photon selection} : \\ 
+Photons with $p_{T} > 100 GeV$ and $|\eta| < 2.4$ are selected excluding the ECAL transition region $1.44 < |\eta| < 1.56$. The photon candidates are required to be isolated where isolation cone of radius $\Delta R = \sqrt{(\Delta\phi)^{2} + (\Delta\eta)^{2}} < 0.3$ is used wiht no dependence on the $p_{T}$ of the photon candidate. Also, the candidates matched to a track measured by the pixel detector (pixel seed) are rejected. 
+
+\item \textbf{lepton veto} : \\
+The selection of events requires no isolated leptons. The $p_{T}$ of the lepton determines the isolation radius. 
+ 
+\[
+  \Delta R =
+  \begin{cases}
+                                   0.2 & \text{if $p_T < 50$ GeV} \\
+                                   10/p_T & \text{if $50 \leq p_T \leq 200$ GeV} \\
+                                   0.05 & \text{if $p_T>200$ GeV}
+  \end{cases}
+\]
+
+The isolation variable I is defined as
+$$ I = \frac{\sum_{<\Delta R}p_{T}(\text{charged hadrons}) + p_{T}(\text{neutral hadrons}) + p_{T}(\gamma) }{p_{T} (\text {lepton})} $$
+\\
+The isolation requirement is I<0.1 for electrons and I<0.2 for muons. After this isolation requirement, jets are cleaned \cite{jet_clean} so that the overlap between the jet and leptons are removed from the jet collection. 
+
+\item \textbf{veto isolated tracks} : \\
+The selection of events required no isolated charged particle tracks. The isolation is defined as 
+$$ I_{i} = \frac{1}{p_{T_i}}\sum_{j \neq i, \Delta R < 0.3}^{\text{all other charged particles}} p_{T_j} $$
+
+The cone of radius 0.3 is used. The isolation requirement is I < 0.2 if the track is electron or muon and I <0.1 otherwise. Isolated tracks are required to satisfy $|\eta| < 2.4$ and the transverse mass of each isolated track with $p_{T}^{miss}, m_{T} = \sqrt{2p_{T}^{track}p_{T}^{miss}(1-cos\Delta\phi)}$ where $\Delta\phi$ is the difference in $\phi$ between $\vec{p}_{T}^{track}$ and $\vec{p}_{T}^{miss}$ is required to be less than 100 GeV. 
+
+\item \textbf{MET selection} : \\
+The selection of events requires the condition $\text{MET} > 200$ GeV. The defination of Missing Transverse Momentum (MET) is $$ \text{MET} =  p_{T}^{miss} = | -\sum_{\text{visibile particles}} \vec{p}_{T}  | $$
+\pagebreak
+\item \textbf{Jets selection} : \\
+Jets are reconstructed by using the anti-kT \cite{antikt} jet algorithm with a size parameter of 0.4. 
+The selection of events requires atleast two jets in the event. Jets are required to have $p_T > 30$ GeV and $|\eta| < 2.4$. There is a difference in the value of size parameter in the standard MA5 delphes detector card, which is to be changed. The delphesMA5tune\_card\_CMS.tcl is provided in the documentation.
+\item  \textbf{$H_{T}^{\gamma}$ and $p_{T}^{\gamma}$ selection} :
+The signal-like candidate events are selected if they satisfy one of the following conditions - 
+\begin{enumerate}
+\item $p_{T}^{\gamma} > 100$ GeV and $H_{T}^{\gamma} > 800$ GeV
+\item $p_{T}^{\gamma} > 190$ GeV and $H_{T}^{\gamma} > 500$ GeV 
+\end{enumerate}
+
+\item \textbf{$\Delta\phi$ selection} : \\
+The signal-like events are selected if the conditions - $\Delta\phi(p_{T}^{miss},\text{leading jet}) > 0.3 \text{ and } \Delta\phi(p_{T}^{miss},\text{second leading jet}) > 0.3$ are satisfied.  
+ 
+\item \textbf{b-jet selection} : \\
+Here this condition divides the signal like candidate events into to signal regions - 
+\begin{enumerate}
+\item Nbjets $= 0$
+\item Nbjets $\leq 1 $
+\end{enumerate} 
+The identification of b jets in the paper \cite{paper} is performed by applying the combined secondary vertex algorithm (CSVv2) at the medium working point to the selected jet samples \cite{btag}. The signal efficiency for b jets with $p_T \sim 30 GeV$ is 55\%. This b-tagging efficiency is the same as predefined in the delphesMA5tune\_card\_CMS.tcl card at the same working point.  
+\end{enumerate} 
+
+
+\subsection{Signal region selections}
+The analysis contains 25 independent signal regions based on $p_{T}^{miss}$, the number of jets $N_{jets}$, and number of b-tagged jets $N_{b-jets}$. The signal regions are grouped into 6 regions based on $N_{jets}$ and $N_{b-jets}$. The $N_{jets}$ is divided into 3 regions : 2-4, 5-6, $\leq$ 7, and the $N_{b-jets}$ is divided into 2 regions : 0, $\leq$ 1. Now, these 6 regions are further divided into 4 regions based on $p_{T}^{miss}$ : $200<p_{T}^{miss}<270, 270<p_{T}^{miss}<350, 350<p_{T}^{miss}<450, p_{T}^{miss}>450 GeV$. In the lowest $N_{jets}$ and $N_{b-jets}$ region the highest $p_{T}^{miss}$ bin is further subdivided such that the highest $p_{T}^{miss}$ bin corresponds to $p_{T}^{miss} > 700 GeV$.  
+\begin{enumerate}
+\item SR1 - $200 <p_T^{miss}\leq270 , 2 \leq N_{jets}\leq 4 , N_{b-jets} = 0 $ 
+\item SR2 - $270 <p_T^{miss}\leq350 , 2 \leq N_{jets}\leq 4 , N_{b-jets} = 0 $
+\item SR3 - $350 <p_T^{miss}\leq450 , 2 \leq N_{jets}\leq 4 , N_{b-jets} = 0 $
+\item SR4 - $450 <p_T^{miss}\leq700 , 2 \leq N_{jets}\leq 4 , N_{b-jets} = 0 $
+\item SR5 - $p_T^{miss}\geq700      , 2 \leq N_{jets}\leq 4 , N_{b-jets} = 0 $
+\item SR6 - $200 <p_T^{miss}\leq270 , 5 \leq N_{jets}\leq 6 , N_{b-jets} = 0 $
+\item SR7 - $270 <p_T^{miss}\leq350 , 5 \leq N_{jets}\leq 6 , N_{b-jets} = 0 $
+\item SR8 - $350 <p_T^{miss}\leq450 , 5 \leq N_{jets}\leq 6 , N_{b-jets} = 0 $
+\item SR9 - $p_T^{miss}\geq450 , 5 \leq N_{jets}\leq 6 , N_{b-jets} = 0 $
+\item SR10 - $200 <p_T^{miss}\leq270 , N_{jets}\geq 7 , N_{b-jets} = 0 $
+\item SR11 - $270 <p_T^{miss}\leq350 , N_{jets}\geq 7 , N_{b-jets} = 0 $
+\item SR12 - $350 <p_T^{miss}\leq450 , N_{jets}\geq 7 , N_{b-jets} = 0 $
+\item SR13 - $p_T^{miss}\geq450 , N_{jets}\geq 7 , N_{b-jets} = 0 $
+\item SR14 - $200 <p_T^{miss}\leq270 , 2 \leq N_{jets}\leq 4 , N_{b-jets} \geq 1 $
+\item SR15 - $270 <p_T^{miss}\leq350 , 2 \leq N_{jets}\leq 4 , N_{b-jets} \geq 1 $
+\item SR16 - $350 <p_T^{miss}\leq450 , 2 \leq N_{jets}\leq 4 , N_{b-jets} \geq 1 $
+\item SR17 - $p_T^{miss}\geq450 , 2 \leq N_{jets}\leq 4 , N_{b-jets} \geq 1 $
+\item SR18 - $200 <p_T^{miss}\leq270 , 5 \leq N_{jets}\leq 6 , N_{b-jets} \geq 1 $
+\item SR19 - $270 <p_T^{miss}\leq350 , 5 \leq N_{jets}\leq 6 , N_{b-jets} \geq 1 $
+\item SR20 - $350 <p_T^{miss}\leq450 , 5 \leq N_{jets}\leq 6 , N_{b-jets} \geq 1 $
+\item SR21 - $p_T^{miss}\geq450 , 5 \leq N_{jets}\leq 6 , N_{b-jets} \geq 1 $
+\item SR22 - $200 <p_T^{miss}\leq270 , N_{jets}\geq 7 , N_{b-jets} \geq 1 $
+\item SR23 - $270 <p_T^{miss}\leq350 , N_{jets}\geq 7 , N_{b-jets} \geq 1 $
+\item SR24 - $350 <p_T^{miss}\leq450 , N_{jets}\geq 7 , N_{b-jets} \geq 1 $
+\item SR25 - $p_T^{miss}\geq450 , N_{jets}\geq 7 , N_{b-jets} \geq 1 $
+\end{enumerate}
+
+\section{Event Generation}
+\paragraph{}
+For our validation, we have two simplified models - T5bbbbZg and T5ttttZg. For T5bbbbZg model we have two sets of mass points $(m_{\tilde{g}},m_{\tilde{\chi}_{1}^{0}}) = (1800,150)\text{GeV and } (1800,1750)$GeV and similarly for T5ttttZg we have $(m_{\tilde{g}},m_{\tilde{\chi}_{1}^{0}}) = (1800,150)\text{GeV and } (1800,1550)$GeV. 
+\paragraph{}
+The SUSY signal samples were produced using \texttt{MADGRAPH5\_aMC@NLO} \cite{madgraph} for the hard scattering process and PYTHIA8 \cite{pythia} was used for hadronization and showering. The supersymmetry model imported in the \textsc{MadGraph5} \\was MSSM\_SHLA2. Samples were generated with up to two additional parton. As pdg\_Id of the $\tilde{G}$ is not defined in the given model, hence, in the parameter card of \textsc{MadGraph}, we have used pdg\_Id of $\tilde{\chi}_1^0 $ as $\tilde{G}$ with mass set at 1 GeV and pdg\_Id of $\tilde{\chi}_2^0 $ as $\tilde{\chi}_1^0 $.  The \textsc{Pythia8} qcut parameter was set to 156 and the corresponding \textsc{MadGraph5} xqut parameter is set to 30. 
+\paragraph{}
+The CMS detector simulation was performed using the built in MA5 tuned Delphes3 \cite{delphes}. Our detector simulation includes photon efficiencies provided on the public CMS webpage - \\
+\href{https://twiki.cern.ch/twiki/bin/view/CMSPublic/SUSMoriond2017ObjectsEfficiency}{https://twiki.cern.ch/twiki/bin/view/CMSPublic/SUSMoriond2017ObjectsEfficiency}. \\Also, the pdg\_Id of Gravitino is treated as an invisible particle during the simulation. 
+\paragraph{}
+We have reweighted our events so that the total production rate for gluino pair production in proton-proton collisions at a center-of-mass energy of 13 TeV matches to the NLO+NLL cross sections taken from Ref \cite{crosssection}. $$ \sigma(p p \to \tilde{g} \tilde{g})\vert_{\tilde{g} = 1800 GeV} = 0.00276 \text{ pb} $$
+\paragraph{}
+The event weight includes a normalization factor accounting of the integrated luminosity of 35.9fb\textsuperscript{-1}.
+Hence, the normalization is defined as - 
+$$ N_\sigma = \frac{\sigma * \mathcal{L}}{\text{Number of events}} * 1000    $$
+
+\section{Comparision with official results}
+\paragraph{}
+The Table \ref{table:1}, \ref{table:2} and \ref{table:3} shows the comparisions between our predictions (MA5) and the official results provided by CMS. Table \ref{table:1} and \ref{table:2} are the cutflow for the baseline selection and Table \ref{table:3} shows the signal region (SR) counts which are determined by applying the SR selection. Also, the graphical comparison of signal region counts between MA5 and CMS results is shown in fig 2.
+\\ 
+
+\paragraph{}
+We observe that the disagreement, on a cut-to-cut basis, is at most 25\% before the $N_{b-jets}$ cuts although, it is less than 15\% in most of the cases. We use cut efficiency in order to compare the cutflow values.  We have defined the efficiency of the cut as - $$ \text{Eff} = \frac{\text{no. of normalized events in the current cut}}{\text{no. of normalized events in the previous cut}} * 100 $$
+\paragraph{}
+ An additional ISR reweighting of events is done in the paper which we have not applied in our validation. This is one of the major reason for the large discrepency in the cut flow. The ISR reweighting will have more effect on discrepancy in the cases where mass difference between LSP and NLSP is less. Also it contributes to the uncertainty in the SR which ranges from 4\% to 30\% depending on the signal region and the signal parameters \cite{paper}. The SR comparison for T5bbbbZg (1800,1750) is better than the T5bbbbZg (1800,150). The uncertainties on the MA5 signal yield in the SR used in the Fig 2 does not include the effects of ISR reweighting while the CMS yields do include the effects of ISR reweighting. In the initial cut, there is a discrepancy between the MA5 and CMS values which should have been the same. The origin of this discrepancy is that the CMS analysis uses event filters which, has $\sim$ 98\% - 99\% efficiency. This filter efficiency is not applied to our implementation. 
+ 
+ 
+
+\begin{table}
+
+
+\begin{center}
+\begin{tabular}{c || c | c || c | c }
+\hline
+
+ & \multicolumn{4}{| c }{T5bbbbZg}
+ 
+ \\
+ 
+ & \multicolumn{2}{ c ||}{$(1800,150)$}
+ & \multicolumn{2}{| c }{$(1800,1750)$}
+ 
+\\
+\hline	\hline
+
+ Selection & MA5 (Eff) & CMS (Eff) & MA5 (Eff) & CMS (Eff) \\
+ 
+\hline \hline
+
+ Initial                     & 99.1 (xxxxx)  & 97.8 (xxxxx) & 99.1 (xxxxx) & 97.7 (xxxxx)   \\
+ $p_T^{\gamma} > 100$GeV     & 41.0 (41.39\%) & 40.2 (41.10\%) & 56.7 (57.24\%) & 52.8 (54.04\%) \\
+ veto e,$\mu$                & 38.9 (94.86\%) & 37.2 (92.54\%) & 52.3 (92.20\%) & 47.4 (89.77\%)   \\
+ veto isolated tracks         & 38.1 (98.05\%) & 35.5 (95.43\%) & 50.4 (96.28\%) & 45.0 (94.94\%)    \\
+ $p_T^{miss} > 200$GeV      & 27.7 (72.71\%) & 26.0 (73.24\%) & 48.8 (96.97\%) & 43.0 (95.57\%)   \\
+ $N_jets \geq 2$             & 27.7 (100.0\%)  & 26.0 (100.0\%) & 36.9 (75.57\%) & 33.4 (77.67\%)  \\
+ $H_T^{\gamma}$ and $p_T^{\gamma}$ selection & 27.7 (100.0\%) & 26.0 (100.0\%) & 36.6 (100.0\%) & 33.2 (99.40\%)  \\
+ $ \Delta\phi_1 , \Delta\phi_2 > 0.3$        & 27.4 (87.90\%) & 23.0 (88.46\%) & 31.9 (87.31\%) & 29.5 (88.85\%)  \\
+\hline 
+ $N_{b-jets} = 0$              & 0.9 (3.54\%)  & 1.6 (6.96\%) & 12.4 (38.45\%) & 12.3 (37.97\%)  \\
+ $N_{b-jets} \geq 1 $          & 23.5 (96.46\%) & 21.3 (92.61\%) & 19.8 (61.55\%) & 19.7 (62.03\%)    \\
+  	 
+ \hline \hline
+  
+
+\end{tabular}
+\caption{Comparison of the cutflow predicted by \textsc{MadAnalysis5} with official CMS cutflow for the Model T5bbbbZg}
+\label{table:1}
+\end{center}
+\begin{center}
+
+
+\begin{tabular}{c || c | c || c | c }
+\hline
+& \multicolumn{4}{| c }{T5ttttZg}
+\\
+ & \multicolumn{2}{| c ||}{$(1800,150)$}
+ & \multicolumn{2}{| c }{$(1800,1550)$} \\
+ \hline \hline
+ Selection & MA5 (Eff) & CMS (Eff) & MA5 (Eff) & CMS (Eff)  \\
+ 
+  
+\hline \hline 
+
+ Initial                     & 99.1 (xxxxx) & 97.6 (xxxxx) & 99.1 (xxxxx) & 97.9 (xxxxx)    \\
+ $p_T^{\gamma} > 100$GeV     & 38.1 (38.47\%) & 37.0 (37.91\%) & 49.8 (50.25\%) & 45.4 (46.37\%)   \\
+ veto e,$\mu$                & 15.7 (41.16\%) & 13.7 (37.03\%) & 21.5 (43.21\%) & 18.7 (41.19\%)   \\
+ veto isolated tracks        & 14.0 (89.40\%) & 11.4 (83.21\%) & 19.7 (91.42\%) & 16.5 (88.26\%)   \\
+ $p_T^{miss} > 200$GeV       & 10.5 (74.87\%) & 8.6 (75.44\%) & 18.9 (96.09\%) & 15.7 (95.15\%)   \\
+ $N_jets \geq 2$             & 10.5 (100.0\%) & 8.6 (100.0\%) & 18.8 (99.47\%) & 15.6 (99.36\%)  \\
+ $H_T^{\gamma}$ and $p_T^{\gamma}$ selection & 10.5 (100.0\%) & 8.6 (100.0\%) & 18.8 (100.0\%) & 15.6 (100.0\%)  \\
+ $ \Delta\phi_1 , \Delta\phi_2 > 0.3$        & 9.4 (89.57\%) & 7.6 (88.37\%) & 16.4 (87.00\%) & 13.8 (88.46\%)   \\
+\hline 
+ $N_{b-jets} = 0$            & 0.30 (3.20\%) & 0.32 (4.21\%) & 3.2 (19.48\%) & 3.4 (24.63\%)  \\
+ $N_{b-jets} \geq 1 $        & 9.1 (96.80\%) & 7.3 (96.05\%)  & 13.2 (80.52\%) & 10.3 (74.64\%)   \\
+  	 
+ \hline \hline
+
+\end{tabular}
+\caption{Comparison of the cutflow predicted by \textsc{MadAnalysis5} with official CMS cutflow for the Model T5ttttZg}
+\label{table:2}
+
+\end{center}
+\begin{center}
+
+
+\begin{tabular}{c || c | c || c | c }
+\hline
+ & \multicolumn{2}{| c ||}{T5bbbbZg (1800,150)}
+ & \multicolumn{2}{| c }{T5bbbbZg (1800,1750)}
+ \\
+ \hline 
+ Signal regions & MA5 & CMS & MA5 & CMS \\
+ SR1  & $0.024 \pm 0.009$ & $0.037 \pm 0.008$ & $0.352 \pm 0.035$ & $0.239 \pm 0.050$ \\
+ SR2  & $0.024 \pm 0.009$ & $0.036 \pm 0.008$ & $0.338 \pm 0.034$ & $0.317 \pm 0.055$ \\
+ SR3  & $0.034 \pm 0.011$ & $0.040 \pm 0.009$ & $0.608 \pm 0.046$ & $0.505 \pm 0.085$ \\
+ SR4  & $0.051 \pm 0.013$ & $0.090 \pm 0.018$ & $2.296 \pm 0.089$ & $2.119 \pm 0.345$ \\
+ SR5  & $0.041 \pm 0.012$ & $0.047 \pm 0.010$ & $7.350 \pm 0.159$ & $6.966 \pm 1.119$ \\
+ SR6  & $0.075 \pm 0.016$ & $0.113 \pm 0.023$ & $0.041 \pm 0.012$ & $0.017 \pm 0.006$ \\
+ SR7  & $0.089 \pm 0.017$ & $0.135 \pm 0.028$ & $0.044 \pm 0.012$ & $0.030 \pm 0.009$ \\
+ SR8  & $0.095 \pm 0.018$ & $0.142 \pm 0.029$ & $0.031 \pm 0.010$ & $0.051 \pm 0.014$ \\
+ SR9  & $0.188 \pm 0.025$ & $0.370 \pm 0.075$ & $1.097 \pm 0.061$ & $0.828 \pm 0.209$ \\
+ SR10 & $0.038 \pm 0.011$ & $0.114 \pm 0.027$ & $0.010 \pm 0.003$ & $0.003 \pm 0.002$ \\
+ SR11 & $0.068 \pm 0.015$ & $0.121 \pm 0.029$ & $0.003 \pm 0.006$ & $0.003 \pm 0.002$ \\
+ SR12 & $0.038 \pm 0.011$ & $0.132 \pm 0.032$ & $0.010 \pm 0.003$ & $0.008 \pm 0.003$ \\
+ SR13 & $0.092 \pm 0.018$ & $0.269 \pm 0.064$ & $0.113 \pm 0.020$ & $0.113 \pm 0.042$ \\
+ SR14 & $0.419 \pm 0.038$ & $0.232 \pm 0.031$ & $0.410 \pm 0.037$ & $0.347 \pm 0.067$ \\
+ SR15 & $0.450 \pm 0.039$ & $0.244 \pm 0.033$ & $0.492 \pm 0.041$ & $0.471 \pm 0.074$ \\
+ SR16 & $0.481 \pm 0.040$ & $0.263 \pm 0.034$ & $0.834 \pm 0.053$ & $0.713 \pm 0.107$ \\
+ SR17 & $1.534 \pm 0.072$ & $1.037 \pm 0.106$ & $13.802 \pm 0.217$ & $13.319 \pm 1.905$ \\
+ SR18 & $1.773 \pm 0.078$ & $1.375 \pm 0.166$ & $0.085 \pm 0.017$ & $0.060 \pm 0.019$ \\
+ SR19 & $1.913 \pm 0.081$ & $1.522 \pm 0.183$ & $0.106 \pm 0.019$ & $0.094 \pm 0.026$ \\
+ SR20 & $1.892 \pm 0.080$ & $1.694 \pm 0.205$ & $0.164 \pm 0.024$ & $0.154 \pm 0.040$ \\
+ SR21 & $4.320 \pm 0.121$ & $4.389 \pm 0.508$ & $3.000 \pm 0.101$ & $2.555 \pm 0.614$ \\
+ SR22 & $2.063 \pm 0.084$ & $1.982 \pm 0.340$ & $0.021 \pm 0.008$ & $0.006 \pm 0.004$ \\
+ SR23 & $2.250 \pm 0.088$ & $2.004 \pm 0.345$ & $0.017 \pm 0.008$ & $0.010 \pm 0.005$ \\
+ SR24 & $2.257 \pm 0.088$ & $2.109 \pm 0.365$ & $0.031 \pm 0.010$ & $0.029 \pm 0.012$ \\
+ SR25 & $4.153 \pm 0.119$ & $4.479 \pm 0.761$ & $0.697 \pm 0.049$ & $0.496 \pm 0.180$ \\
+\hline \hline	
+
+\end{tabular}  
+\caption{Yields in the signal region for the T5bbbbZg model with $(m_{\tilde{g}},m_{\tilde{\chi}_{1}^{0}}) = (1800,150) , (1800,1750)$GeV}
+\label{table:3}  
+\end{center}
+\end{table}
+
+\begin{figure}[h] 
+
+\centering 
+\includegraphics[scale=0.7, angle = 270]{/home/nukul/Academics/madanalysis/figs/signal_150.pdf}
+\includegraphics[scale=0.7, angle = 270]{/home/nukul/Academics/madanalysis/figs/signal_1750.pdf}
+\caption{Figure 2: The SR yield comparsion between the MA5 and CMS for the models T5bbbbZg(1800,150) (top) and T5bbbbZg(1800,1750) (bottom).   }
+\end{figure}
+
+\section{Conclusion}
+We have presented the \textsc{MadAnalysis5} reimplementation of the CMS-SUS-18-002. All the pre-selection requirements have been incorporated and the signal events for a set of benchmark mass points have been used to validate the analysis implementation. The benchmark signal models used are T5bbbbZg and T5ttttZg. We have compared the cut flow and the signal regions of MA5 with official CMS values. The cut flow agrees within a deviation of about 25\% without the application of ISR reweighting. The implementation is considered to be validated.   
+
+The reimplemented analysis code and the Delphes\_MA5 tune cards are available on \textsc{MadAnalsis5}'s Public Analysis Database and on \textsc{InSpire}.    
+
+
+
+\newpage
+\bibliographystyle{IEEEtran}
+\bibliography{reference}
+
+
+
+ 
+
+\end{document}
